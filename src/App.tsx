@@ -17,8 +17,8 @@ const App: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedHero, setSelectedHero] = useState<keyof Settings | null>(null);
   const [settings, setSettings] = useState<Settings>({
-    hero1: { color: 'red', speed: 2, fireRate: 4 },
-    hero2: { color: 'blue', speed: 2, fireRate: 4 },
+    hero1: { color: 'red', speed: 2, fireRate: 1 },
+    hero2: { color: 'blue', speed: 2, fireRate: 1 },
   });
 
   const toggleModal = useCallback(() => setShowModal(!showModal), [showModal]);

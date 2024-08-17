@@ -17,7 +17,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ settings, openSettingsModal }) 
     if (!canvas) return;
     const context = canvas.getContext('2d');
     if (!context) return;
-
+    
     const width = canvas.width;
     const height = canvas.height;
 
@@ -55,34 +55,43 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ settings, openSettingsModal }) 
       });
 
       // Update and draw spells
-      spells.forEach((spell, index) => {
+      for (let i = spells.length - 1; i >= 0; i--) {
+        const spell = spells[i];
+
+        // Move spells
         if (spell.heroId === 'hero1') {
           spell.x += 5;
         } else {
           spell.x -= 5;
         }
+
+        // Remove spells that are out of bounds
         if (spell.x < 0 || spell.x > width) {
-          spells.splice(index, 1);
+          spells.splice(i, 1);
+          continue;
         }
 
-        // Check collision with heroes
-        heroes.forEach((hero) => {
-          if (Math.abs(hero.x - spell.x) < 25 && Math.abs(hero.y - spell.y) < 25) {
-            spells.splice(index, 1);
-            if (hero.id === 'hero1') {
-              setScores(scores => ({ ...scores, hero2: scores.hero2 + 1 }));
-            } else {
-              setScores(scores => ({ ...scores, hero1: scores.hero1 + 1 }));
-            }
-          }
-        });
+        // Check for collision with heroes
+        const hitHero = heroes.find(hero => 
+          hero.id !== spell.heroId &&
+          Math.abs(hero.x - spell.x) < 25 && Math.abs(hero.y - spell.y) < 25
+        );
 
-        // Draw spell
-        context.beginPath();
-        context.arc(spell.x, spell.y, 5, 0, Math.PI * 2);
-        context.fillStyle = spell.color;
-        context.fill();
-      });
+        if (hitHero) {
+          spells.splice(i, 1);
+          if (hitHero.id === 'hero1') {
+            setScores(scores => ({ ...scores, hero2: scores.hero2 + 1 }));
+          } else {
+            setScores(scores => ({ ...scores, hero1: scores.hero1 + 1 }));
+          }
+        } else {
+          // Draw spell
+          context.beginPath();
+          context.arc(spell.x, spell.y, 5, 0, Math.PI * 2);
+          context.fillStyle = spell.color;
+          context.fill();
+        }
+      }
 
       requestAnimationFrame(draw);
     };
