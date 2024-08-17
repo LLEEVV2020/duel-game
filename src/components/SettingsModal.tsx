@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface HeroSettings {
   color: string;
@@ -6,69 +6,66 @@ interface HeroSettings {
   fireRate: number;
 }
 
-interface Settings {
-  hero1: HeroSettings;
-  hero2: HeroSettings;
-}
-
 interface SettingsModalProps {
-  settings: Settings;
-  onChange: (hero: keyof Settings, newSettings: Partial<HeroSettings>) => void;
+  visible: boolean;
+  settings: HeroSettings;
   onClose: () => void;
+  onSave: (newSettings: Partial<HeroSettings>) => void;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ settings, onChange, onClose }) => {
-  const handleColorChange = (hero: keyof Settings, color: string) => {
-    onChange(hero, { color });
-  }
+const SettingsModal: React.FC<SettingsModalProps> = ({ visible, settings, onClose, onSave }) => {
+  const [newSettings, setNewSettings] = useState<Partial<HeroSettings>>({
+    color: settings.color,
+    speed: settings.speed,
+    fireRate: settings.fireRate,
+  });
 
-  const handleSpeedChange = (hero: keyof Settings, speed: number) => {
-    onChange(hero, { speed });
-  }
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewSettings((prev) => ({ ...prev, color: e.target.value }));
+  };
 
-  const handleFireRateChange = (hero: keyof Settings, fireRate: number) => {
-    onChange(hero, { fireRate });
-  }
+  const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewSettings((prev) => ({ ...prev, speed: parseFloat(e.target.value) }));
+  };
+
+  const handleFireRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewSettings((prev) => ({ ...prev, fireRate: parseFloat(e.target.value) }));
+  };
+
+  const handleSave = () => {
+    onSave(newSettings);
+    onClose();
+  };
+
+  if (!visible) return null;
 
   return (
     <div className="modal">
-      <h2>Настройки</h2>
-      {(['hero1', 'hero2'] as Array<keyof Settings>).map((hero) => (
-        <div key={hero}>
-          <h3>{hero === 'hero1' ? 'Герой 1' : 'Герой 2'}</h3>
+      <div className="modal-content">
+        <h2>Настройки героя</h2>
+        <div>
           <label>
             Цвет:
-            <input 
-              type="color" 
-              value={settings[hero].color} 
-              onChange={(e) => handleColorChange(hero, e.target.value)} 
-            />
-          </label>
-          <label>
-            Скорость:
-            <input 
-              type="range" 
-              min="1" 
-              max="10" 
-              value={settings[hero].speed} 
-              onChange={(e) => handleSpeedChange(hero, Number(e.target.value))} 
-            />
-          </label>
-          <label>
-            Частота стрельбы:
-            <input 
-              type="range" 
-              min="500" 
-              max="2000" 
-              value={settings[hero].fireRate} 
-              onChange={(e) => handleFireRateChange(hero, Number(e.target.value))} 
-            />
+            <input type="color" value={newSettings.color} onChange={handleColorChange} />
           </label>
         </div>
-      ))}
-      <button onClick={onClose}>Закрыть</button>
+        <div>
+          <label>
+            Скорость:
+            <input type="range" min="0.5" max="4.0" step="0.1" value={newSettings.speed} onChange={handleSpeedChange} />
+          </label>
+        </div>
+        <div>
+          <label>
+            Частота стрельбы:
+            <input type="range" min="2.5" max="10.0" step="0.5" value={newSettings.fireRate} onChange={handleFireRateChange} />
+          </label>
+        </div>
+        <button onClick={handleSave}>Сохранить</button>
+        <button onClick={onClose}>Отмена</button>
+      </div>
     </div>
   );
-}
+};
 
 export default SettingsModal;

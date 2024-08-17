@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import GameCanvas from './components/GameCanvas';
-import SettingsModal from './components/SettingsModal';
+import SettingsModal from './components//SettingsModal';
 
-// Определим тип для описания настроек героя
 interface HeroSettings {
   color: string;
   speed: number;
@@ -16,12 +15,13 @@ interface Settings {
 
 const App: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
+  const [selectedHero, setSelectedHero] = useState<keyof Settings | null>(null);
   const [settings, setSettings] = useState<Settings>({
-    hero1: { color: 'red', speed: 2, fireRate: 1000 },
-    hero2: { color: 'blue', speed: 2, fireRate: 1000 },
+    hero1: { color: 'red', speed: 2, fireRate: 4 },
+    hero2: { color: 'blue', speed: 2, fireRate: 4 },
   });
 
-  const toggleModal = () => setShowModal(!showModal);
+  const toggleModal = useCallback(() => setShowModal(!showModal), [showModal]);
 
   const handleSettingsChange = (hero: keyof Settings, newSettings: Partial<HeroSettings>) => {
     setSettings((prev) => ({
@@ -30,20 +30,25 @@ const App: React.FC = () => {
     }));
   };
 
+  const openSettingsModal = (hero: keyof Settings) => {
+    setSelectedHero(hero);
+    toggleModal();
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Игра "Дуэль"</h1>
-        <button onClick={toggleModal}>Настройки</button>
-      </header>
-      {showModal && 
-        <SettingsModal 
-          settings={settings} 
-          onChange={handleSettingsChange} 
-          onClose={toggleModal} 
+    <div>
+      <GameCanvas
+        settings={settings}
+        openSettingsModal={openSettingsModal}
+      />
+      {selectedHero && (
+        <SettingsModal
+          visible={showModal}
+          settings={settings[selectedHero]}
+          onClose={toggleModal}
+          onSave={(newSettings) => handleSettingsChange(selectedHero, newSettings)}
         />
-      }
-      <GameCanvas settings={settings} />
+      )}
     </div>
   );
 };
