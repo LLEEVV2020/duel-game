@@ -37,6 +37,7 @@ const App: React.FC = () => {
 
   return (
     <div>
+        <h1> игра "Дуэль"</h1>
       <GameCanvas
         settings={settings}
         openSettingsModal={openSettingsModal}

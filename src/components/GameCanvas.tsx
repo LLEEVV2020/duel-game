@@ -2,7 +2,8 @@ import React, { useRef, useEffect, useState } from 'react';
 
 interface GameCanvasProps {
   settings: {
-    hero1: { color: string; speed: number; fireRate: number };
+    hero1: { color: string; speed: number; fireRate: number 
+      };
     hero2: { color: string; speed: number; fireRate: number };
   };
   openSettingsModal: (hero: 'hero1' | 'hero2') => void;
@@ -22,8 +23,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ settings, openSettingsModal }) 
     const height = canvas.height;
 
     const heroes = [
-      { id: 'hero1', x: 50, y: height / 2, dx: 0, dy: settings.hero1.speed, color: settings.hero1.color, fireRate: settings.hero1.fireRate },
-      { id: 'hero2', x: width - 50, y: height / 2, dx: 0, dy: settings.hero2.speed, color: settings.hero2.color, fireRate: settings.hero2.fireRate },
+      { id: 'hero1', x: 50, y: height / 2, dx: 0, dy: settings.hero1.speed, color: settings.hero1.color, fireRate: settings.hero1.fireRate, border: 'red' },
+      { id: 'hero2', x: width - 50, y: height / 2, dx: 0, dy: settings.hero2.speed, color: settings.hero2.color, fireRate: settings.hero2.fireRate, border: 'blue' },
     ];
 
     const spells: { heroId: string; x: number; y: number; color: string }[] = [];
@@ -49,9 +50,13 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ settings, openSettingsModal }) 
 
         // Draw hero
         context.beginPath();
-        context.arc(hero.x, hero.y, 20, 0, Math.PI * 2);
+        context.arc(hero.x, hero.y, 10, 0, Math.PI * 2);
         context.fillStyle = hero.color;
         context.fill();
+
+        context.lineWidth = 20;        // Установите ширину обводки
+        context.strokeStyle = hero.border;   // Установите цвет обводки
+        context.stroke();             // Рисуем обводку
       });
 
       // Update and draw spells
